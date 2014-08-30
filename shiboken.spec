@@ -1,14 +1,18 @@
-# TODO: python2/python3 builds
+#
+# Conditional build:
+%bcond_without	python2	# CPython 2.x support
+%bcond_without	python3	# CPython 3.x support
+#
 Summary:	CPython bindings generator for C++ libraries
 Summary(pl.UTF-8):	Generator wiązań CPythona dla bibliotek C++
 Name:		shiboken
-Version:	1.1.2
-Release:	2
+Version:	1.2.2
+Release:	1
 License:	LGPL v2.1+ (libraries), GPL v2 (tools)
 Group:		Development/Tools
 #Source0Download: http://qt-project.org/wiki/category:LanguageBindings::PySide::Downloads
-Source0:	http://qt-project.org/uploads/pyside/%{name}-%{version}.tar.bz2
-# Source0-md5:	0a37b5011b3a7276bf4584317412a4b6
+Source0:	http://download.qt-project.org/official_releases/pyside/%{name}-%{version}.tar.bz2
+# Source0-md5:	9f5bee9d414ce51be07ff7a20054a48d
 URL:		http://qt-project.org/PySide/
 BuildRequires:	QtCore-devel >= 4.5.0
 BuildRequires:	QtXml-devel >= 4.5.0
@@ -19,7 +23,6 @@ BuildRequires:	libxml2-devel >= 1:2.6.32
 BuildRequires:	libxslt-devel >= 1.1.19
 BuildRequires:	python-devel >= 1:2.6
 BuildRequires:	sphinx-pdg
-Requires:	%{name}-libs = %{version}-%{release}
 Requires:	QtCore >= 4.5.0
 Requires:	QtXml >= 4.5.0
 Requires:	QtXmlPatterns >= 4.5.0
@@ -34,52 +37,139 @@ shiboken is a CPython bindings generator for C++ libraries.
 %description -l pl.UTF-8
 shiboken to generator wiązań CPythona dla bibliotek C++.
 
-%package libs
-Summary:	Shiboken runtime library
-Summary(pl.UTF-8):	Biblioteka uruchomieniowa shiboken
-Group:		Libraries
+%package python2
+Summary:	Shiboken Python 2.x support files
+Summary(pl.UTF-8):	Shiboken - pliki do obsługi Pythona 2.x
+Group:		Development/Libraries
+Requires:	%{name} = %{version}-%{release}
+Requires:	python-devel >= 1:%{py_ver}
+Requires:	python-shiboken = %{version}-%{release}
+
+%description python2
+Shiboken Python 2.x support files.
+
+%description python2 -l pl.UTF-8
+Shiboken - pliki do obsługi Pythona 2.x.
+
+%package -n python-shiboken
+Summary:	Shiboken runtime library for Python 2.x
+Summary(pl.UTF-8):	Biblioteka uruchomieniowa shiboken dla Pythona 2.x
+Group:		Libraries/Python
 Requires:	python-libs
+Obsoletes:	shiboken-libs
 
-%description libs
-Shiboken runtime library.
+%description -n python-shiboken
+Shiboken runtime library for Python 2.x.
 
-%description libs -l pl.UTF-8
-Biblioteka uruchomieniowa shiboken.
+%description -n python-shiboken -l pl.UTF-8
+Biblioteka uruchomieniowa shiboken dla Pythona 2.x.
+
+%package python3
+Summary:	Shiboken Python 3.x support files
+Summary(pl.UTF-8):	Shiboken - pliki do obsługi Pythona 3.x
+Group:		Development/Libraries
+Requires:	%{name} = %{version}-%{release}
+Requires:	python3-devel >= 1:%{py_ver}
+Requires:	python3-shiboken = %{version}-%{release}
+
+%description python3
+Shiboken Python 3.x support files.
+
+%description python3 -l pl.UTF-8
+Shiboken - pliki do obsługi Pythona 3.x.
+
+%package -n python3-shiboken
+Summary:	Shiboken runtime library for Python 3.x
+Summary(pl.UTF-8):	Biblioteka uruchomieniowa shiboken dla Pythona 3.x
+Group:		Libraries/Python
+Requires:	python3-libs
+Obsoletes:	shiboken-libs
+
+%description -n python3-shiboken
+Shiboken runtime library for Python 3.x.
+
+%description -n python3-shiboken -l pl.UTF-8
+Biblioteka uruchomieniowa shiboken dla Pythona 3.x.
 
 %prep
 %setup -q
 
 %build
-mkdir build
-cd build
+%if %{with python2}
+install -d build-py2
+cd build-py2
 %cmake ..
-
 %{__make}
+cd ..
+%endif
+
+%if %{with python3}
+install -d build-py3
+cd build-py3
+%cmake .. \
+	-DUSE_PYTHON3=TRUE
+%{__make}
+cd ..
+%endif
 
 %install
 rm -rf $RPM_BUILD_ROOT
 
-%{__make} -C build install \
+%if %{with python3}
+%{__make} -C build-py3 install \
 	DESTDIR=$RPM_BUILD_ROOT
+# content depends on python version
+%{__mv} $RPM_BUILD_ROOT%{_pkgconfigdir}/shiboken{,3}.pc
+%endif
+
+%if %{with python2}
+%{__make} -C build-py2 install \
+	DESTDIR=$RPM_BUILD_ROOT
+%endif
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%post	libs -p /sbin/ldconfig
-%postun	libs -p /sbin/ldconfig
+%post	-n python-shiboken -p /sbin/ldconfig
+%postun	-n python-shiboken -p /sbin/ldconfig
+
+%post	-n python3-shiboken -p /sbin/ldconfig
+%postun	-n python3-shiboken -p /sbin/ldconfig
 
 %files
 %defattr(644,root,root,755)
 %doc AUTHORS ChangeLog
 %attr(755,root,root) %{_bindir}/shiboken
-%attr(755,root,root) %{_libdir}/libshiboken-python%{py_ver}.so
 %{_includedir}/shiboken
-%{_pkgconfigdir}/shiboken.pc
-%{_libdir}/cmake/Shiboken-%{version}
+%dir %{_libdir}/cmake/Shiboken-%{version}
+%{_libdir}/cmake/Shiboken-%{version}/ShibokenConfig.cmake
+%{_libdir}/cmake/Shiboken-%{version}/ShibokenConfigVersion.cmake
 %{_mandir}/man1/shiboken.1*
 
-%files libs
+%if %{with python2}
+%files python2
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/libshiboken-python%{py_ver}.so
+%{_pkgconfigdir}/shiboken.pc
+%{_libdir}/cmake/Shiboken-%{version}/ShibokenConfig-python%{py_ver}.cmake
+
+%files -n python-shiboken
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libshiboken-python%{py_ver}.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libshiboken-python%{py_ver}.so.1.1
+%attr(755,root,root) %ghost %{_libdir}/libshiboken-python%{py_ver}.so.1.2
 %attr(755,root,root) %{py_sitedir}/shiboken.so
+%endif
+
+%if %{with python3}
+%files python3
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/libshiboken.cpython-3*.so
+%{_pkgconfigdir}/shiboken3.pc
+%{_libdir}/cmake/Shiboken-%{version}/ShibokenConfig.cpython-3*.cmake
+
+%files -n python3-shiboken
+%defattr(644,root,root,755)
+%attr(755,root,root) %{_libdir}/libshiboken.cpython-3*.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libshiboken.cpython-3*.so.1.2
+%attr(755,root,root) %{py3_sitedir}/shiboken.so
+%endif
