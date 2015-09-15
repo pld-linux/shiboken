@@ -7,12 +7,13 @@ Summary:	CPython bindings generator for C++ libraries
 Summary(pl.UTF-8):	Generator wiązań CPythona dla bibliotek C++
 Name:		shiboken
 Version:	1.2.2
-Release:	3
+Release:	4
 License:	LGPL v2.1+ (libraries), GPL v2 (tools)
 Group:		Development/Tools
 #Source0Download: http://qt-project.org/wiki/category:LanguageBindings::PySide::Downloads
 Source0:	http://download.qt-project.org/official_releases/pyside/%{name}-%{version}.tar.bz2
 # Source0-md5:	9f5bee9d414ce51be07ff7a20054a48d
+Patch0:		%{name}-python.patch
 URL:		http://qt-project.org/PySide/
 BuildRequires:	QtCore-devel >= 4.5.0
 BuildRequires:	QtXml-devel >= 4.5.0
@@ -93,6 +94,7 @@ Biblioteka uruchomieniowa shiboken dla Pythona 3.x.
 
 %prep
 %setup -q
+%patch0 -p1
 
 %build
 %if %{with python2}

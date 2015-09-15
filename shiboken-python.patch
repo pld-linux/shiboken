@@ -1,0 +1,11 @@
+--- shiboken-1.2.2/cmake/Modules/FindPython3Libs.cmake~	2014-04-22 17:42:48.000000000 +0200
++++ shiboken-1.2.2/cmake/Modules/FindPython3Libs.cmake	2015-09-15 15:20:22.415743347 +0200
+@@ -27,7 +27,7 @@ INCLUDE(CMakeFindFrameworks)
+ # Search for the python framework on Apple.
+ # CMAKE_FIND_FRAMEWORKS(Python)
+ 
+-FOREACH(_CURRENT_VERSION 3.4 3.3 3.2 3.1 3.0)
++FOREACH(_CURRENT_VERSION 3.7 3.6 3.5 3.4 3.3 3.2 3.1 3.0)
+   IF(_CURRENT_VERSION GREATER 3.1)
+       SET(_32FLAGS "m" "u" "mu" "dm" "du" "dmu" "")
+   ELSE()
