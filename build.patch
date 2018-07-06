@@ -1,0 +1,21 @@
+--- shiboken-1.2.2/tests/libsample/simplefile.cpp~	2014-04-22 17:42:48.000000000 +0200
++++ shiboken-1.2.2/tests/libsample/simplefile.cpp	2018-07-06 18:52:32.818363884 +0200
+@@ -90,7 +90,7 @@ bool
+ SimpleFile::exists() const
+ {
+     std::ifstream ifile(p->m_filename);
+-    return ifile;
++    return !!ifile;
+ }
+ 
+ bool
+--- shiboken-1.2.2/tests/libsample/simplefile.cpp~	2018-07-06 18:58:34.000000000 +0200
++++ shiboken-1.2.2/tests/libsample/simplefile.cpp	2018-07-06 18:59:39.479838951 +0200
+@@ -97,6 +97,6 @@ bool
+ SimpleFile::exists(const char* filename)
+ {
+     std::ifstream ifile(filename);
+-    return ifile;
++    return !!ifile;
+ }
+ 
