@@ -1,11 +1,70 @@
---- shiboken-1.2.2/cmake/Modules/FindPython3Libs.cmake~	2014-04-22 17:42:48.000000000 +0200
-+++ shiboken-1.2.2/cmake/Modules/FindPython3Libs.cmake	2015-09-15 15:20:22.415743347 +0200
-@@ -27,7 +27,7 @@ INCLUDE(CMakeFindFrameworks)
+diff -ur shiboken-1.2.2/cmake/Modules/FindPython3Libs.cmake shiboken-1.2.2.cmake/cmake/Modules/FindPython3Libs.cmake
+--- shiboken-1.2.2/cmake/Modules/FindPython3Libs.cmake	2014-04-22 17:42:48.000000000 +0200
++++ shiboken-1.2.2.cmake/cmake/Modules/FindPython3Libs.cmake	2019-11-03 14:04:12.709846749 +0100
+@@ -27,13 +27,8 @@
  # Search for the python framework on Apple.
  # CMAKE_FIND_FRAMEWORKS(Python)
  
 -FOREACH(_CURRENT_VERSION 3.4 3.3 3.2 3.1 3.0)
-+FOREACH(_CURRENT_VERSION 3.7 3.6 3.5 3.4 3.3 3.2 3.1 3.0)
-   IF(_CURRENT_VERSION GREATER 3.1)
-       SET(_32FLAGS "m" "u" "mu" "dm" "du" "dmu" "")
-   ELSE()
+-  IF(_CURRENT_VERSION GREATER 3.1)
+-      SET(_32FLAGS "m" "u" "mu" "dm" "du" "dmu" "")
+-  ELSE()
+-      SET(_32FLAGS "")
+-  ENDIF()
+-  FOREACH(_COMPILATION_FLAGS ${_32FLAGS})
++FOREACH(_CURRENT_VERSION 3.9 3.8 3.7 3.6 3.5 3.4 3.3 3.2 3.1 3.0)
++  FOREACH(_COMPILATION_FLAGS "" "m" "u" "mu" "dm" "du" "dmu")
+       STRING(REPLACE "." "" _CURRENT_VERSION_NO_DOTS ${_CURRENT_VERSION})
+       IF(WIN32)
+         IF(_CURRENT_VERSION GREATER 3.1)
+diff -ur shiboken-1.2.2/tests/minimalbinding/typedef_test.py shiboken-1.2.2.cmake/tests/minimalbinding/typedef_test.py
+--- shiboken-1.2.2/tests/minimalbinding/typedef_test.py	2014-04-22 17:42:48.000000000 +0200
++++ shiboken-1.2.2.cmake/tests/minimalbinding/typedef_test.py	2019-11-03 13:32:18.299912198 +0100
+@@ -30,7 +30,7 @@
+ 
+ try:
+     import numpy as np
+-except ImportError, e:
++except ImportError as e:
+     np = None
+ 
+ 
+@@ -46,7 +46,7 @@
+ 
+     def test_arrayFuncInt(self):
+         none = ()
+-        full = range(self.the_size)
++        full = list(range(self.the_size))
+         self.assertTrue(arrayFuncInt(none), "None is empty, arrayFuncInt should return true")
+         self.assertFalse(arrayFuncInt(full), "Full is NOT empty, arrayFuncInt should return false")
+ 
+@@ -76,7 +76,7 @@
+ 
+     def test_arrayFunc(self):
+         none = ()
+-        full = range(self.the_size)
++        full = list(range(self.the_size))
+         self.assertTrue(arrayFunc(none), "None is empty, arrayFunc should return true")
+         self.assertFalse(arrayFunc(full), "Full is NOT empty, arrayFunc should return false")
+ 
+diff -ur shiboken-1.2.2/tests/samplebinding/overflow_test.py shiboken-1.2.2.cmake/tests/samplebinding/overflow_test.py
+--- shiboken-1.2.2/tests/samplebinding/overflow_test.py	2014-04-22 17:42:48.000000000 +0200
++++ shiboken-1.2.2.cmake/tests/samplebinding/overflow_test.py	2019-11-03 13:32:18.299912198 +0100
+@@ -45,7 +45,7 @@
+         '''C++ function receives an long long argument and raise OverflowError if the value is negative.'''
+         val = 100
+         self.assertEqual(doubleLongLong(val), 2 * val)
+-        val = long(100)
++        val = int(100)
+         self.assertEqual(doubleLongLong(val), 2 * val)
+         val = (2 << 64) + 1
+         self.assertRaises(OverflowError, doubleLongLong, val)
+@@ -54,7 +54,7 @@
+         '''C++ function receives an unsigned long long argument and raise OverflowError if the value is negative.'''
+         val = 100
+         self.assertEqual(doubleUnsignedLongLong(val), 2 * val)
+-        val = long(100)
++        val = int(100)
+         self.assertEqual(doubleUnsignedLongLong(val), 2 * val)
+         val *= -1
+         self.assertRaises(OverflowError, doubleUnsignedLongLong, val)
