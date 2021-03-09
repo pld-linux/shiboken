@@ -143,7 +143,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc AUTHORS ChangeLog
+%doc AUTHORS
 %attr(755,root,root) %{_bindir}/shiboken
 %{_includedir}/shiboken
 %dir %{_libdir}/cmake/Shiboken-%{version}
