@@ -10,12 +10,13 @@ Version:	1.2.4
 Release:	2
 License:	LGPL v2.1+ (libraries), GPL v2 (tools)
 Group:		Development/Tools
+#Source0Download: https://github.com/pyside/Shiboken/releases
 Source0:	https://github.com/pyside/Shiboken/archive/%{version}/%{name}-%{version}.tar.gz
 # Source0-md5:	c284197d06ad25d78009ff55f18dd512
 Patch0:		%{name}-python.patch
 Patch1:		build.patch
 Patch2:		python3.patch
-URL:		https://qt-project.org/PySide/
+URL:		https://github.com/pyside/Shiboken
 BuildRequires:	QtCore-devel >= 4.5.0
 BuildRequires:	QtXml-devel >= 4.5.0
 BuildRequires:	QtXmlPatterns-devel >= 4.5.0
