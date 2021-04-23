@@ -1,13 +1,14 @@
 #
 # Conditional build:
-%bcond_without	python2	# CPython 2.x support
-%bcond_without	python3	# CPython 3.x support
+%bcond_without	python2		# CPython 2.x support
+%bcond_without	python3		# CPython 3.x support
+%bcond_with	python3_default	# default to python3
 #
 Summary:	CPython bindings generator for C++ libraries
 Summary(pl.UTF-8):	Generator wiązań CPythona dla bibliotek C++
 Name:		shiboken
 Version:	1.2.4
-Release:	2
+Release:	3
 License:	LGPL v2.1+ (libraries), GPL v2 (tools)
 Group:		Development/Tools
 #Source0Download: https://github.com/pyside/Shiboken/releases
@@ -34,6 +35,8 @@ Requires:	libxml2 >= 1:2.6.32
 Requires:	libxslt >= 1.1.19
 Requires:	python >= 1:2.6
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+
+%define		py3_soabi	%(%{__python3} -c 'import sysconfig; print(sysconfig.get_config_var("SOABI"));')
 
 %description
 shiboken is a CPython bindings generator for C++ libraries.
@@ -122,17 +125,15 @@ cd ..
 %install
 rm -rf $RPM_BUILD_ROOT
 
-%if %{with python3}
-%{__make} -C build-py3 install \
-	DESTDIR=$RPM_BUILD_ROOT
-# content depends on python version
-%{__mv} $RPM_BUILD_ROOT%{_pkgconfigdir}/shiboken{,3}.pc
-%endif
+# version installed as last will be default
+for pyver in %{?with_python3_default:%{?with_python2:py2}} %{?with_python3:py3} %{!?with_python3_default:%{?with_python2:py2}} ; do
 
-%if %{with python2}
-%{__make} -C build-py2 install \
+%{__make} -C build-${pyver} install \
 	DESTDIR=$RPM_BUILD_ROOT
-%endif
+%{__mv} $RPM_BUILD_ROOT%{_pkgconfigdir}/shiboken.pc $RPM_BUILD_ROOT%{_pkgconfigdir}/shiboken-${pyver}.pc
+ln -sf shiboken-${pyver}.pc $RPM_BUILD_ROOT%{_pkgconfigdir}/shiboken.pc
+
+done
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -157,7 +158,8 @@ rm -rf $RPM_BUILD_ROOT
 %files python2
 %defattr(644,root,root,755)
 %attr(755,root,root) %{_libdir}/libshiboken-python%{py_ver}.so
-%{_pkgconfigdir}/shiboken.pc
+%{_pkgconfigdir}/shiboken-py2.pc
+%{!?with_python3_default:%{_pkgconfigdir}/shiboken.pc}
 %{_libdir}/cmake/Shiboken-%{version}/ShibokenConfig-python%{py_ver}.cmake
 
 %files -n python-shiboken
@@ -170,13 +172,14 @@ rm -rf $RPM_BUILD_ROOT
 %if %{with python3}
 %files python3
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libshiboken.cpython-3*.so
-%{_pkgconfigdir}/shiboken3.pc
-%{_libdir}/cmake/Shiboken-%{version}/ShibokenConfig.cpython-3*.cmake
+%attr(755,root,root) %{_libdir}/libshiboken.%{py3_soabi}.so
+%{_pkgconfigdir}/shiboken-py3.pc
+%{?with_python3_default:%{_pkgconfigdir}/shiboken.pc}
+%{_libdir}/cmake/Shiboken-%{version}/ShibokenConfig.%{py3_soabi}.cmake
 
 %files -n python3-shiboken
 %defattr(644,root,root,755)
-%attr(755,root,root) %{_libdir}/libshiboken.cpython-3*.so.*.*.*
-%attr(755,root,root) %ghost %{_libdir}/libshiboken.cpython-3*.so.1.2
+%attr(755,root,root) %{_libdir}/libshiboken.%{py3_soabi}.so.*.*.*
+%attr(755,root,root) %ghost %{_libdir}/libshiboken.%{py3_soabi}.so.1.2
 %attr(755,root,root) %{py3_sitedir}/shiboken.so
 %endif
