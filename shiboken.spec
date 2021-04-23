@@ -125,11 +125,12 @@ cd ..
 %install
 rm -rf $RPM_BUILD_ROOT
 
-# version installed as last will be default
+# version installed as last will be default (it covers default PYTHON_SUFFIX in cmake files and .pc symlink)
 for pyver in %{?with_python3_default:%{?with_python2:py2}} %{?with_python3:py3} %{!?with_python3_default:%{?with_python2:py2}} ; do
 
 %{__make} -C build-${pyver} install \
 	DESTDIR=$RPM_BUILD_ROOT
+
 %{__mv} $RPM_BUILD_ROOT%{_pkgconfigdir}/shiboken.pc $RPM_BUILD_ROOT%{_pkgconfigdir}/shiboken-${pyver}.pc
 ln -sf shiboken-${pyver}.pc $RPM_BUILD_ROOT%{_pkgconfigdir}/shiboken.pc
 
