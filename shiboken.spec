@@ -24,14 +24,15 @@ BuildRequires:	cmake >= 2.6
 BuildRequires:	libstdc++-devel
 BuildRequires:	libxml2-devel >= 1:2.6.32
 BuildRequires:	libxslt-devel >= 1.1.19
-BuildRequires:	python-devel >= 1:2.6
+%{?with_python2:BuildRequires:	python-devel >= 1:2.6}
+%{?with_python3:BuildRequires:	python3-devel >= 1:3.2}
 BuildRequires:	sphinx-pdg
 Requires:	QtCore >= 4.5.0
 Requires:	QtXml >= 4.5.0
 Requires:	QtXmlPatterns >= 4.5.0
 Requires:	libxml2 >= 1:2.6.32
 Requires:	libxslt >= 1.1.19
-Requires:	python
+Requires:	python >= 1:2.6
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
@@ -58,8 +59,8 @@ Shiboken - pliki do obsługi Pythona 2.x.
 Summary:	Shiboken runtime library for Python 2.x
 Summary(pl.UTF-8):	Biblioteka uruchomieniowa shiboken dla Pythona 2.x
 Group:		Libraries/Python
-Requires:	python-libs
-Obsoletes:	shiboken-libs
+Requires:	python-libs >= 1:2.6
+Obsoletes:	shiboken-libs < 1.2.2
 
 %description -n python-shiboken
 Shiboken runtime library for Python 2.x.
@@ -85,8 +86,8 @@ Shiboken - pliki do obsługi Pythona 3.x.
 Summary:	Shiboken runtime library for Python 3.x
 Summary(pl.UTF-8):	Biblioteka uruchomieniowa shiboken dla Pythona 3.x
 Group:		Libraries/Python
-Requires:	python3-libs
-Obsoletes:	shiboken-libs
+Requires:	python3-libs >= 1:3.2
+Obsoletes:	shiboken-libs < 1.2.2
 
 %description -n python3-shiboken
 Shiboken runtime library for Python 3.x.
